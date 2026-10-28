@@ -1,54 +1,53 @@
-package com.demo;
+package test;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.*;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.sql.*;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String url = System.getenv().getOrDefault("DB_URL", "jdbc:mysql://localhost:3306/login_db");
-        String dbUser = System.getenv().getOrDefault("DB_USER", "root");
-        String dbPassword = System.getenv().getOrDefault("DB_PASSWORD", "");
-        String sql = "SELECT username FROM users WHERE username = ? AND password = ?";
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        String user = request.getParameter("username");
+        String pass = request.getParameter("password");
+
+        String url = "jdbc:mysql://localhost:3306/login_db";
+        String dbUser = "root";
+        String dbPass = "11838920";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword);
-                 PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, username);
-                statement.setString(2, password);
-                try (ResultSet result = statement.executeQuery()) {
-                    if (result.next()) {
-                        HttpSession session = request.getSession();
-                        session.setAttribute("username", result.getString("username"));
-                        response.sendRedirect("welcome.jsp");
-                    } else {
-                        response.sendRedirect("login.jsp?error=1");
-                    }
-                }
-            }
+
+            Connection con = DriverManager.getConnection(
+                    url, dbUser, dbPass);
+
+            String sql = "SELECT * FROM users WHERE username=? AND password=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, user);
+            ps.setString(2, pass);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next())
+                out.println("<h2>Login Successful</h2>");
+            else
+                out.println("<h2>Invalid username or password</h2>");
+
+            rs.close();
+            ps.close();
+            con.close();
+
         } catch (Exception e) {
-            getServletContext().log("Login database request failed", e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            try (PrintWriter out = response.getWriter()) {
-                out.println("<h2>Database connection error. Check server configuration.</h2>");
-            }
+            out.println("Database Error: " + e.getMessage());
         }
     }
 }
-
