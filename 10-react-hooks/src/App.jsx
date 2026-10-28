@@ -1,33 +1,45 @@
 import { useState } from "react";
 
-const colors = [
-  { name: "Red", value: "red" },
-  { name: "Blue", value: "blue" },
-  { name: "Green", value: "green" },
-  { name: "Yellow", value: "yellow" },
-];
+function App() {
+    const [color, setColor] = useState("white");
 
-export default function App() {
-  const [color, setColor] = useState("white");
+    return (
+        <div style={{
+            backgroundColor: color,
+            minHeight: "100vh",
+            textAlign: "center",
+            padding: "50px"
+        }}>
+            <h2>Select a Color</h2>
 
-  return (
-    <main className="app" style={{ backgroundColor: color }}>
-      <h1>Select a Color</h1>
-      <div className="buttons">
-        {colors.map((item) => (
-          <button
-            key={item.name}
-            type="button"
-            onClick={() => setColor(item.value)}
-            style={{ backgroundColor: item.value, color: item.name === "Yellow" ? "black" : "white" }}
-          >
-            {item.name}
-          </button>
-        ))}
-      </div>
-      <h2 aria-live="polite">
-        {color === "white" ? "Please select a color." : `You have selected ${color[0].toUpperCase()}${color.slice(1)} color.`}
-      </h2>
-    </main>
-  );
+            <button onClick={() => setColor("red")}
+                style={{ backgroundColor: "red", color: "white" }}>
+                Red
+            </button>
+
+            <button onClick={() => setColor("blue")}
+                style={{ backgroundColor: "blue", color: "white" }}>
+                Blue
+            </button>
+          
+
+            <button onClick={() => setColor("green")}
+                style={{ backgroundColor: "green", color: "white" }}>
+                Green
+            </button>
+
+            <button onClick={() => setColor("yellow")}
+                style={{ backgroundColor: "yellow", color: "black" }}>
+                Yellow
+            </button>
+
+            <h3>
+                {color === "white"
+                    ? "Please select a color."
+                    : "You selected " + color}
+            </h3>
+        </div>
+    );
 }
+
+export default App;
